@@ -14,14 +14,19 @@ worked, but motion was jerky and took ~5 s (see Limitations).
 ## My contributions
 | Package | Role |
 |---|---|
-| `navigation` | <algorithm, e.g. how it picks a heading and outputs drive commands> |
-| `gps_tools` | <what it does, e.g. coordinate/bearing/distance utilities> |
-| `wr_imu_compass` | <heading estimation from IMU> |
-
-Co-designed with the team (implemented by others): master finder, state machine.
+| `navigation` | Depth-camera obstacle avoidance. Projects depth into a GPS-shifted 9×9 m local occupancy grid (0.1 m cells), builds a polar histogram (4° sectors), and picks a free valley VFH+-style (hysteresis thresholds, 0.5 m robot-radius inflation, target-weighted cost). Outputs a 4-value drive command. |
+| `gps_tools` | TODO |
+| `wr_imu_compass` | TODO |
 
 ## How it works
-<3 to 5 lines: inputs (GPS, IMU, <obstacle source>) -> navigation -> drive commands>
+```
+depth + RGB + GPS + compass heading + waypoint
+ -> ground removal (height + slope < 30°) -> obstacle points
+ -> project into persistent local grid (shifts with GPS, slow decay)
+ -> inflate by robot radius -> smoothed polar histogram
+ -> hysteresis -> open valleys -> best sector (5x target + 1x heading cost)
+ -> low-pass -> P controller -> drive command
+```
 
 ## Validation
 - VFH+ (Vector Field Histogram+: bins obstacle density by direction and steers
